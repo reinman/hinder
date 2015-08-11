@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="initial-scale=1.0, width=device-width, user-scalable=no"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <title>Shake.js</title>
+
+  <link rel="stylesheet" type="text/css" href="style.css">
+
+  <script type="text/javascript" src="shake.js"></script>
+</head>
+<body>
+
+
+<div id="large-header" class="large-header">
+  <canvas id="demo-canvas"></canvas>
+  <h1 class="main-title"><span id="score">0</span><br>
+    <span class="thin" id="team">Blue Team</span> <br>
+    <button onclick="changeRound()">Change Round</button>
+  </h1>
+</div>
+
+
+<script src="https://cdn.firebase.com/js/client/2.2.4/firebase.js"></script>
+
+<script type="text/javascript">
+  //firebase ref
+  var firebaseRef = new Firebase("https://hinder.firebaseio.com/score");
+  var scoreRef = new Firebase("https://hinder.firebaseio.com/score");
+
+  function changeRound() {
+    scoreRef.set(0);
+    var html = document.getElementById("team");
+    (html.innerHTML == "Blue Team") ? html.innerHTML = "Red Team" : html.innerHTML = "Blue Team";
+  }
+
+
+  window.onload = function () {
+
+    //create a new instance of shake.js.
+    var myShakeEvent = new Shake({
+      threshold: 1
+    });
+
+
+
+
+    // start listening to device motion
+    myShakeEvent.start();
+
+    // register a shake event
+    window.addEventListener('shake', shakeEventDidOccur, false);
+
+    //shake event callback
+    function shakeEventDidOccur() {
+      scoreRef.transaction(function(score) {
+        if (score != null) {
+          return score + 1;
+        } else {
+          return 0;
+        }
+      });
+    }
+
+    scoreRef.on('value', function(childSnapshot, prevChildKey) {
+      document.getElementById("score").innerHTML = childSnapshot.val();
+    });
+  };
+</script>
+<script type="text/javascript" src="TweenLite.min.js"></script>
+<script type="text/javascript" src="ease.js"></script>
+<script type="text/javascript" src="r.js"></script>
+<script type="text/javascript" src="bg.js"></script>
+
+</body>
+</html>
